@@ -46,16 +46,6 @@ union
 select 'orderdetails' as 'table',count(*) as total_orderdetails from orderdetails;
 
 /*3. What is the total number of orders placed by each customer*/
-select c.customernumber,c.customerName,count(
-o.ordernumber) as totalorder
-from customers c
-left join orders o on
-c.customernumber = o.customernumber
-group by c.customernumber, c.customername
-order by totalorder desc
-;
-
-
 SELECT
     c.customerNumber,
     c.customerName,
@@ -69,8 +59,33 @@ GROUP BY
 ORDER BY
     totalOrders DESC;
 
-	/*4. What is the total amount spent by each customer? 
-*/
+
+--useing with clause
+WITH OrderCounts AS (
+    SELECT
+        c.customernumber,
+        c.customerName,
+        COUNT(o.ordernumber) AS totalorder
+    FROM
+        customers c
+    LEFT JOIN
+        orders o ON c.customernumber = o.customernumber
+    GROUP BY
+        c.customernumber, c.customername
+)
+
+SELECT
+    customernumber,
+    customerName,
+    totalorder
+FROM
+    OrderCounts
+ORDER BY
+    totalorder DESC;
+
+
+
+/*4. What is the total amount spent by each customer? */
 
 select * from customers;
 select * from payments;
@@ -96,12 +111,12 @@ order by totalAmount desc;
 
 select top 5
 c.customerNumber, sum(p.amount) as TotalAmount
-
 from customers c
-
 join payments p on c.customerNumber = p.customerNumber
 group by c.customerNumber
 order by totalAmount desc;
+
+
 /*6. How many customers each sales employee deals with? 
 */
 select * from employees;
@@ -176,7 +191,7 @@ JOIN customers c ON e.employeeNumber = c.salesRepEmployeeNumber
 JOIN orders odr ON c.customerNumber = odr.customerNumber
 JOIN orderdetails od ON odr.orderNumber = od.orderNumber
 GROUP BY o.officeCode, o.city
-ORDER BY totalSales DESC
+ORDER BY totalSalesÂ DESC
 ;
 select * from productlines;
 select * from products;
@@ -321,5 +336,15 @@ Identify the bottom 10 customers by their total amount of purchased products.*/
  join payments p on c.customerNumber =p.customerNumber
  group by customerName,c.customerNumber
  order by total ;
+
+--USE OFFSET AND FETCH
+ select 
+ customerName, c.customerNumber, sum(amount) as total
+ from customers c
+ join payments p on c.customerNumber =p.customerNumber
+ group by customerName,c.customerNumber
+ order by total 
+ offset 10 row
+ fetch next 10 rows only;
 
 
